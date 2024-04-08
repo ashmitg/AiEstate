@@ -125,14 +125,61 @@ const addUpdateAssets = async(req, res) => {
     }
 }
 
-const deleteAsset = async(req, res) => {
+const deleteAsset = async (req, res) => {
     try {
-        let assets = await Assets.findOne({createdBy: req.auth});
-        console.log(assets)
-    } catch(error){
-        return res.status(400).json({status: false})
-    }
+        const { keyId, assetType } = req.body;
 
-}
+        if (!keyId || !assetType) {
+            return res.status(400).json({ status: false, message: "Invalid request parameters" });
+        }
+
+        const assets = await Assets.findOne({ createdBy: req.auth });
+
+        if (!assets) {
+            return res.status(404).json({ status: false, message: "No assets found for this user" });
+        }
+
+        let assetArrayField;
+
+        switch (assetType) {
+            case "Custom":
+                await CustomAsset.deleteOne({ _id: keyId, createdBy: req.auth });
+                assetArrayField = 'customs';
+                break;
+            case "Property":
+                await PropertyAsset.deleteOne({ _id: keyId, createdBy: req.auth });
+                assetArrayField = 'houses';
+                break;
+            case "Car":
+                await Car.deleteOne({ _id: keyId, createdBy: req.auth });
+                assetArrayField = 'cars';
+                break;
+            case "Business":
+                await BusinessAsset.deleteOne({ _id: keyId, createdBy: req.auth });
+                assetArrayField = 'businesses';
+                break;
+            case "Stock":
+                await StockAsset.deleteOne({ _id: keyId, createdBy: req.auth });
+                assetArrayField = 'stocks';
+                break;
+            default:
+                throw new Error("Invalid asset type");
+        }
+
+        // Pull the deleted asset from the assets array
+        if (assetArrayField) {
+            assets.assets[assetArrayField] = assets.assets[assetArrayField].filter(
+                (asset) => !asset.equals(keyId)
+            );
+            await assets.save();
+        }
+
+        return res.status(200).json({ status: true, message: "Asset deleted successfully" });
+    } catch (error) {
+        console.log(error);
+        return res.status(400).json({ status: false, message: "Failed to delete asset" });
+    }
+};
+
 
 module.exports = {viewAssets, addUpdateAssets, deleteAsset}

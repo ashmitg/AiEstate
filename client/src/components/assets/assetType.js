@@ -1,24 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardBody, Heading, Stack, Box, Text, IconButton, Flex } from '@chakra-ui/react';
 import { MdClose } from 'react-icons/md'; // Import close icon
-import OpenModal from '../../components/assets/openModal';
+import OpenModal from './openModal';
 import useSendApi from '../../hooks/useSendApi'
 import { v4 as uuidv4 } from 'uuid';
 
-const Custom = ({props}) => {
+const AssetType = ({data, text, assetName}) => {
 
   const [modals, setModals] = useState([]);
+
   useEffect(() => {
     // When props change (initially or on subsequent updates), populate modals
-    if (props && props.length > 0) {
-      const newModals = props.map(property => ({
+    if (data && data.length > 0) {
+      const newModals = data.map(property => ({
         id: property._id, // Use the _id field as the modal ID
         inputData: property
       }));
       setModals(newModals);
     }
-  }, [props]);
-
+  }, [data]);
 
   const generateMongoDBId = () => {
     const uuid = uuidv4().replace(/-/g, ''); // Generate UUID and remove dashes
@@ -27,30 +27,26 @@ const Custom = ({props}) => {
 
   const api = useSendApi()
 
+
   const addModal = () => {
     const newModals = [...modals];
     console.log()
-    newModals.push({ id: generateMongoDBId() }); // Using Date.now() as a unique identifier
+    newModals.push({ id: generateMongoDBId() });
     setModals(newModals);
   };
 
   // Function to remove a modal from the list
   const removeModal = async (idToRemove) => {
-    let response = await api('/api/assets/deleteasset', {id: idToRemove, assetName: "Custom"});
-    if (response.error) {
-      console.error('Error deleting asset');
-      return;
-    }
-    else{
-      const updatedModals = modals.filter((modal) => modal.id !== idToRemove);
-      setModals(updatedModals);
-    }
+    const response = await api('/api/assets/deleteasset', {keyId: idToRemove, assetType: assetName});
+
+    const updatedModals = modals.filter((modal) => modal.id !== idToRemove);
+    setModals(updatedModals);
   };
 
   return (
     <Card>
       <CardBody>
-        <Heading size = 'sm'>Custom Assets</Heading>
+        <Heading size = 'sm'>{assetName}</Heading>
             <Text
               pt='2'
               fontSize='sm'
@@ -58,13 +54,13 @@ const Custom = ({props}) => {
               cursor='pointer'
               onClick={addModal}
             >
-              + Add Custom Modal
+              + Add {assetName} Modal
             </Text>
         <Stack direction='row' spacing='4'>
 
           {modals.map((modal) => (
             <Box key={modal.id} borderWidth='1px' borderRadius='md' p='4' boxShadow='md'>
-              <OpenModal keyId={modal.id} inputData={modal.inputData} assetName="Custom" url = {"/api/assets/updateaddassets"} ReqVal={"Value"} OptString={"OptString"} FormVals={["Enter Custom Asset Name", "Set your Asset Assignment", "Enter Your Asset's Value", "Enter Specific Clauses (optional)"] } />
+              <OpenModal keyId={modal.id} inputData={modal.inputData} assetName={assetName} url = {"/api/assets/updateaddassets"} ReqVal={"Value"} OptString={"OptString"} FormVals={text} />
 
               {/* Flex container for delete button */}
               <Flex justify='center' align='center' mt='2'>
@@ -86,4 +82,4 @@ const Custom = ({props}) => {
   );
 };
 
-export default Custom;
+export default AssetType;
