@@ -27,6 +27,7 @@ const viewAssets = async (req, res) => {
         console.log("error occured", error)
         return res.status(400).json({status: false});
     }
+    
 }
 
 const addUpdateAssets = async(req, res) => {
