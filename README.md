@@ -1,6 +1,8 @@
 ## Generative AI Estate Planning Platform with groq API
 Demo: 
-https://github.com/ashmitg/AiEstate/assets/84148720/5325f280-9443-4a13-bd2a-0844c1b99122
+
+[!Demo](https://github.com/ashmitg/AiEstate/assets/84148720/58fe8077-2fc0-4e87-8f04-cf6eb2d51c7c)
+
 ### Description
 
 This is a full-stack web application built with the MERN stack (MongoDB, Express, React, and Node.js) that allows users to create personalized estate plans based on their assets and designated beneficiaries. The application utilizes a generative AI model powered by the groq API to generate comprehensive estate planning documents tailored to the user's specific needs.
